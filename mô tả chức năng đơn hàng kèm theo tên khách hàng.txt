@@ -1,0 +1,25 @@
+-- -----------------------------------------------------------------------------
+
+-- Câu 4: Đơn hàng kèm tên khách hàng hiển thị
+
+-- Nghiệp vụ : Ánh xạ mã khách hàng thô sang tên cụ thể trên báo cáo.
+
+-- Quan hệ   : Nối [Orders] với [Customers] qua CustomerID (N:1).
+
+-- -----------------------------------------------------------------------------
+
+SELECT 
+
+    o.OrderID,
+
+    c.CustomerName,
+
+    o.OrderDate,
+
+    o.Status
+
+FROM Orders o
+
+JOIN Customers c ON o.CustomerID = c.CustomerID;
+
+GO
