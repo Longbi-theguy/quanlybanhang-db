@@ -1,0 +1,30 @@
+-- -----------------------------------------------------------------------------
+
+-- Câu 6: Thống kê số đơn hàng của từng khách (Bao gồm khách chưa mua)
+
+-- Nghiệp vụ : Đo lường sức mua, không bỏ sót khách tiềm năng chưa có đơn.
+
+-- Quan hệ   : LEFT JOIN từ [Customers] (1) sang [Orders] (N) qua CustomerID.
+
+-- -----------------------------------------------------------------------------
+
+SELECT 
+
+    c.CustomerID,
+
+    c.CustomerName,
+
+    COUNT(o.OrderID) AS TotalOrders
+
+FROM Customers c
+
+LEFT JOIN Orders o ON c.CustomerID = o.CustomerID
+
+GROUP BY 
+
+    c.CustomerID,
+
+    c.CustomerName;
+
+GO
+
