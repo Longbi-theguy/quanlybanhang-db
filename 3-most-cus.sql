@@ -6,3 +6,5 @@ JOIN OrderDetails od ON o.OrderID = od.OrderID
 WHERE o.Status = 'Completed'
 GROUP BY c.CustomerID, c.CustomerName
 ORDER BY TotalSpent DESC;
+--liên kết 3 bảng qua các mối quan hệ: Customers -> Orders -> OrderDetails 
+--để truy xuất từ thông tin khách hàng đến sản phẩm và tính tổng tiền mua (TotalSpent).
