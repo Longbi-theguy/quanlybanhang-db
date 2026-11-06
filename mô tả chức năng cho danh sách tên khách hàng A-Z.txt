@@ -1,0 +1,28 @@
+-- -----------------------------------------------------------------------------
+
+-- Câu 1: Danh sách tất cả khách hàng (Sắp xếp A-Z)
+
+-- Nghiệp vụ : Tra cứu hồ sơ khách hàng theo thứ tự bảng chữ cái.
+
+-- Quan hệ   : Thao tác trên bảng đơn [Customers].
+
+-- -----------------------------------------------------------------------------
+
+SELECT 
+
+    CustomerID,
+
+    CustomerName,
+
+    Email,
+
+    Phone,
+
+    City
+
+FROM Customers
+
+ORDER BY CustomerName ASC;
+
+GO
+
