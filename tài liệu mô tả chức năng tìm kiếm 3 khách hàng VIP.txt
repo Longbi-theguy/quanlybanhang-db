@@ -1,0 +1,36 @@
+-- -----------------------------------------------------------------------------
+
+-- Câu 8: Top 3 khách hàng chi tiêu nhiều nhất (VIP)
+
+-- Nghiệp vụ : Tìm nhóm khách VIP để có chính sách chăm sóc đặc biệt.
+
+-- Quan hệ   : Nối 3 bảng [Customers] -> [Orders] -> [OrderDetails].
+
+-- -----------------------------------------------------------------------------
+
+SELECT TOP 3
+
+    c.CustomerID,
+
+    c.CustomerName,
+
+    SUM(od.Quantity * od.UnitPrice) AS TotalSpent
+
+FROM Customers c
+
+JOIN Orders o        ON c.CustomerID = o.CustomerID
+
+JOIN OrderDetails od ON o.OrderID = od.OrderID
+
+WHERE o.Status = 'Completed'
+
+GROUP BY 
+
+    c.CustomerID,
+
+    c.CustomerName
+
+ORDER BY TotalSpent DESC;
+
+GO
+
