@@ -1,0 +1,32 @@
+-- -----------------------------------------------------------------------------
+
+-- Câu 9: Khách hàng chưa từng đặt đơn
+
+-- Nghiệp vụ : Lọc danh sách khách chưa mua hàng để remarketing/kích cầu.
+
+-- Quan hệ   : Subquery đối chiếu giữa [Customers] và [Orders].
+
+-- -----------------------------------------------------------------------------
+
+SELECT 
+
+    CustomerID,
+
+    CustomerName,
+
+    Email,
+
+    Phone
+
+FROM Customers
+
+WHERE CustomerID NOT IN (
+
+    SELECT DISTINCT CustomerID 
+
+    FROM Orders
+
+);
+
+GO
+
