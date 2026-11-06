@@ -1,0 +1,26 @@
+-- -----------------------------------------------------------------------------
+
+-- Câu 3: Danh sách đơn hàng đã hoàn thành (Completed)
+
+-- Nghiệp vụ : Lọc các đơn thành công làm cơ sở tính doanh thu thực tế.
+
+-- Quan hệ   : Thao tác trên bảng đơn [Orders].
+
+-- -----------------------------------------------------------------------------
+
+SELECT 
+
+    OrderID,
+
+    CustomerID,
+
+    OrderDate,
+
+    Status
+
+FROM Orders
+
+WHERE Status = 'Completed';
+
+GO
+
