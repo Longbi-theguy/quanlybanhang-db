@@ -14,7 +14,9 @@ IF OBJECT_ID('Products', 'U') IS NOT NULL DROP TABLE Products;
 IF OBJECT_ID('Customers', 'U') IS NOT NULL DROP TABLE Customers;
 GO
 
--- 3. Tạo lại bảng Customers
+-- 3. Tạo lại bảng Customers(khách hàng)
+--Lưu trữ thông tin định danh và liên lạc của khách hàng (như họ tên, email, số điện thoại, thành phố)
+--phục vụ cho việc quản lý khách mua hàng và chăm sóc khách hàng.
 CREATE TABLE Customers (
     CustomerID INT IDENTITY(1,1) PRIMARY KEY,
     CustomerName NVARCHAR(100) NOT NULL,
@@ -23,7 +25,9 @@ CREATE TABLE Customers (
     City NVARCHAR(50)
 );
 
--- 4. Tạo lại bảng Products
+-- 4. Tạo lại bảng Products ( Sản phẩm )
+--Quản lý toàn bộ danh mục hàng hóa của cửa hàng, bao gồm tên sản phẩm, 
+--giá bán (Price) và số lượng hàng tồn kho (Stock) để theo dõi tình trạng hàng hóa.
 CREATE TABLE Products (
     ProductID INT IDENTITY(1,1) PRIMARY KEY,
     ProductName NVARCHAR(100) NOT NULL,
@@ -31,7 +35,9 @@ CREATE TABLE Products (
     Stock INT NOT NULL
 );
 
--- 5. Tạo lại bảng Orders
+-- 5. Tạo lại bảng Orders ( Đơn hàng ) 
+--Quản lý thông tin tổng quan về các giao dịch đặt hàng của khách, bao gồm khách hàng nào đặt (CustomerID), 
+--ngày đặt (OrderDate), và trạng thái đơn hàng (Status như Completed, Pending, Cancelled).
 CREATE TABLE Orders (
     OrderID INT IDENTITY(1,1) PRIMARY KEY,
     CustomerID INT FOREIGN KEY REFERENCES Customers(CustomerID),
@@ -39,7 +45,9 @@ CREATE TABLE Orders (
     Status VARCHAR(50) NOT NULL -- 'Completed', 'Pending', 'Cancelled'
 );
 
--- 6. Tạo lại bảng OrderDetails
+-- 6. Tạo lại bảng OrderDetails ( Chi tiết đơn hàng )
+--Là bảng trung gian lưu trữ thông tin chi tiết của từng sản phẩm có trong một đơn hàng 
+--(đơn hàng nào mua sản phẩm gì,số lượng bao nhiêu, và đơn giá thực tế tại thời điểm mua là bao nhiêu).
 CREATE TABLE OrderDetails (
     OrderID INT FOREIGN KEY REFERENCES Orders(OrderID),
     ProductID INT FOREIGN KEY REFERENCES Products(ProductID),
