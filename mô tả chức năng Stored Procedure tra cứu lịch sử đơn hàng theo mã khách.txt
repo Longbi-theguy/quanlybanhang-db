@@ -1,0 +1,56 @@
+-- -----------------------------------------------------------------------------
+
+-- Câu 13: Stored Procedure tra cứu lịch sử mua hàng theo CustomerID
+
+-- Nghiệp vụ : Đóng gói thủ tục để ứng dụng gọi nhanh, an toàn và tối ưu.
+
+-- Quan hệ   : LEFT JOIN [Orders] (1) sang [OrderDetails] (N) theo @CustID.
+
+-- -----------------------------------------------------------------------------
+
+IF OBJECT_ID('sp_GetCustomerOrderHistory', 'P') IS NOT NULL
+
+    DROP PROCEDURE sp_GetCustomerOrderHistory;
+
+GO
+
+
+
+CREATE PROCEDURE sp_GetCustomerOrderHistory
+
+    @CustID INT
+
+AS
+
+BEGIN
+
+    SET NOCOUNT ON;
+
+
+
+    SELECT 
+
+        o.OrderID,
+
+        o.OrderDate,
+
+        o.Status,
+
+        ISNULL(SUM(od.Quantity * od.UnitPrice), 0) AS OrderTotal
+
+    FROM Orders o
+
+    LEFT JOIN OrderDetails od ON o.OrderID = od.OrderID
+
+    WHERE o.CustomerID = @CustID
+
+    GROUP BY 
+
+        o.OrderID,
+
+        o.OrderDate,
+
+        o.Status;
+
+END;
+GO
