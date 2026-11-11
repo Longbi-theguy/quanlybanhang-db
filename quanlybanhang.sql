@@ -1,5 +1,11 @@
+/*
+    Database: QuanLyBanHang
+    Purpose : Customer, product, order and order-detail management
+    Platform: Microsoft SQL Server
 
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'QuanLyBanHang')
+*/
+
+IF DB_ID(N'QuanLyBanHang') IS NULL
 BEGIN
     CREATE DATABASE QuanLyBanHang;
 END
@@ -8,82 +14,97 @@ GO
 USE QuanLyBanHang;
 GO
 
-IF OBJECT_ID('OrderDetails', 'U') IS NOT NULL DROP TABLE OrderDetails;
-IF OBJECT_ID('Orders', 'U') IS NOT NULL DROP TABLE Orders;
-IF OBJECT_ID('Products', 'U') IS NOT NULL DROP TABLE Products;
-IF OBJECT_ID('Customers', 'U') IS NOT NULL DROP TABLE Customers;
+-- Drop tables in dependency order
+IF OBJECT_ID(N'dbo.OrderDetails', N'U') IS NOT NULL DROP TABLE dbo.OrderDetails;
+IF OBJECT_ID(N'dbo.Orders', N'U') IS NOT NULL DROP TABLE dbo.Orders;
+IF OBJECT_ID(N'dbo.Products', N'U') IS NOT NULL DROP TABLE dbo.Products;
+IF OBJECT_ID(N'dbo.Customers', N'U') IS NOT NULL DROP TABLE dbo.Customers;
 GO
 
--- 3. Tạo lại bảng Customers(khách hàng)
---Lưu trữ thông tin định danh và liên lạc của khách hàng (như họ tên, email, số điện thoại, thành phố)
---phục vụ cho việc quản lý khách mua hàng và chăm sóc khách hàng.
-CREATE TABLE Customers (
-    CustomerID INT IDENTITY(1,1) PRIMARY KEY,
-    CustomerName NVARCHAR(100) NOT NULL,
-    Email NVARCHAR(100),
-    Phone VARCHAR(20),
-    City NVARCHAR(50)
-);
-
--- 4. Tạo lại bảng Products ( Sản phẩm )
---Quản lý toàn bộ danh mục hàng hóa của cửa hàng, bao gồm tên sản phẩm, 
---giá bán (Price) và số lượng hàng tồn kho (Stock) để theo dõi tình trạng hàng hóa.
-CREATE TABLE Products (
-    ProductID INT IDENTITY(1,1) PRIMARY KEY,
-    ProductName NVARCHAR(100) NOT NULL,
-    Price DECIMAL(18, 2) NOT NULL,
-    Stock INT NOT NULL
-);
-
--- 5. Tạo lại bảng Orders ( Đơn hàng ) 
---Quản lý thông tin tổng quan về các giao dịch đặt hàng của khách, bao gồm khách hàng nào đặt (CustomerID), 
---ngày đặt (OrderDate), và trạng thái đơn hàng (Status như Completed, Pending, Cancelled).
-CREATE TABLE Orders (
-    OrderID INT IDENTITY(1,1) PRIMARY KEY,
-    CustomerID INT FOREIGN KEY REFERENCES Customers(CustomerID),
-    OrderDate DATE NOT NULL,
-    Status VARCHAR(50) NOT NULL -- 'Completed', 'Pending', 'Cancelled'
-);
-
--- 6. Tạo lại bảng OrderDetails ( Chi tiết đơn hàng )
---Là bảng trung gian lưu trữ thông tin chi tiết của từng sản phẩm có trong một đơn hàng 
---(đơn hàng nào mua sản phẩm gì,số lượng bao nhiêu, và đơn giá thực tế tại thời điểm mua là bao nhiêu).
-CREATE TABLE OrderDetails (
-    OrderID INT FOREIGN KEY REFERENCES Orders(OrderID),
-    ProductID INT FOREIGN KEY REFERENCES Products(ProductID),
-    Quantity INT NOT NULL,
-    UnitPrice DECIMAL(18, 2) NOT NULL,
-    PRIMARY KEY (OrderID, ProductID)
+-- 1. Customers
+CREATE TABLE dbo.Customers (
+    CustomerID INT IDENTITY(1,1) CONSTRAINT PK_Customers PRIMARY KEY,
+    FullName NVARCHAR(100) NOT NULL,
+    Email VARCHAR(100) NOT NULL CONSTRAINT UQ_Customers_Email UNIQUE,
+    Phone VARCHAR(15) NULL,
+    Address NVARCHAR(255) NULL
 );
 GO
 
--- 7. Thêm dữ liệu mẫu
-INSERT INTO Customers (CustomerName, Email, Phone, City) VALUES
-(N'Nguyễn Văn A', 'a@gmail.com', '0901111111', N'Hà Nội'),
-(N'Trần Thị B', 'b@gmail.com', '0902222222', N'Hồ Chí Minh'),
-(N'Lê Văn C', 'c@gmail.com', '0903333333', N'Đà Nẵng'),
-(N'Phạm Thị D', 'd@gmail.com', '0904444444', N'Cần Thơ'),
-(N'Hoàng Văn E', 'e@gmail.com', '0905555555', N'Hải Phòng');
+-- 2. Products
+CREATE TABLE dbo.Products (
+    ProductID INT IDENTITY(1,1) CONSTRAINT PK_Products PRIMARY KEY,
+    ProductName NVARCHAR(150) NOT NULL,
+    Price DECIMAL(18,2) NOT NULL CONSTRAINT CHK_Products_Price CHECK (Price >= 0),
+    StockQuantity INT NOT NULL CONSTRAINT CHK_Products_Stock CHECK (StockQuantity >= 0)
+);
+GO
 
-INSERT INTO Products (ProductName, Price, Stock) VALUES
-(N'Laptop Dell XPS', 25000000.00, 10),
-(N'iPhone 15 Pro', 28000000.00, 15),
-(N'Tai nghe Bluetooth', 850000.00, 50),
-(N'Bàn phím cơ', 1500000.00, 30),
-(N'Chuột không dây', 450000.00, 100);
+-- 3. Orders
+CREATE TABLE dbo.Orders (
+    OrderID INT IDENTITY(1,1) CONSTRAINT PK_Orders PRIMARY KEY,
+    CustomerID INT NOT NULL,
+    OrderDate DATETIME NOT NULL CONSTRAINT DF_Orders_OrderDate DEFAULT GETDATE(),
+    Status TINYINT NOT NULL CONSTRAINT DF_Orders_Status DEFAULT 0,
+    CONSTRAINT FK_Orders_Customers FOREIGN KEY (CustomerID)
+        REFERENCES dbo.Customers(CustomerID),
+    CONSTRAINT CHK_Orders_Status CHECK (Status IN (0, 1, 2, 3))
+);
+GO
 
-INSERT INTO Orders (CustomerID, OrderDate, Status) VALUES
-(1, '2026-05-01', 'Completed'),
-(1, '2026-05-05', 'Pending'),
-(2, '2026-05-03', 'Completed'),
-(3, '2026-05-04', 'Cancelled'),
-(4, '2026-05-06', 'Completed');
+-- Status: 0 = Pending, 1 = Processing, 2 = Completed, 3 = Cancelled
 
-INSERT INTO OrderDetails (OrderID, ProductID, Quantity, UnitPrice) VALUES
-(1, 1, 1, 25000000.00),
-(1, 3, 2, 850000.00),
-(2, 2, 1, 28000000.00),
-(3, 2, 1, 28000000.00),
-(3, 4, 2, 1500000.00),
-(5, 4, 1, 1500000.00);
+-- 4. OrderDetails
+CREATE TABLE dbo.OrderDetails (
+    OrderDetailID INT IDENTITY(1,1) CONSTRAINT PK_OrderDetails PRIMARY KEY,
+    OrderID INT NOT NULL,
+    ProductID INT NOT NULL,
+    Quantity INT NOT NULL CONSTRAINT CHK_OrderDetails_Quantity CHECK (Quantity > 0),
+    UnitPrice DECIMAL(18,2) NOT NULL CONSTRAINT CHK_OrderDetails_UnitPrice CHECK (UnitPrice >= 0),
+    CONSTRAINT FK_OrderDetails_Orders FOREIGN KEY (OrderID)
+        REFERENCES dbo.Orders(OrderID) ON DELETE CASCADE,
+    CONSTRAINT FK_OrderDetails_Products FOREIGN KEY (ProductID)
+        REFERENCES dbo.Products(ProductID)
+);
+GO
+
+-- 5. Sample Customers
+INSERT INTO dbo.Customers (FullName, Email, Phone, Address) VALUES
+(N'Nguyễn Văn An', 'an.nguyen@example.com', '0901234567', N'123 Lê Lợi, Quận 1, TP.HCM'),
+(N'Trần Thị Bích', 'bich.tran@example.com', '0912345678', N'456 Nguyễn Huệ, Quận 1, TP.HCM'),
+(N'Lê Hoàng Cường', 'cuong.le@example.com', '0923456789', N'789 Cách Mạng Tháng 8, Quận 3, TP.HCM'),
+(N'Phạm Minh Dung', 'dung.pham@example.com', '0934567890', N'101 Hoàng Văn Thụ, Tân Bình, TP.HCM'),
+(N'Hoàng Anh Tuấn', 'tuan.hoang@example.com', '0945678901', N'202 Võ Thị Sáu, Quận 3, TP.HCM');
+GO
+
+-- 6. Sample Products
+INSERT INTO dbo.Products (ProductName, Price, StockQuantity) VALUES
+(N'Laptop Dell XPS 13', 35000000.00, 15),
+(N'iPhone 15 Pro Max', 32000000.00, 30),
+(N'Bàn phím cơ Keychron K2', 2200000.00, 50),
+(N'Chuột Logitech MX Master 3S', 2500000.00, 40),
+(N'Màn hình Dell UltraSharp U2723QE', 12500000.00, 0),
+(N'Tai nghe Sony WH-1000XM5', 8490000.00, 20);
+GO
+
+-- 7. Sample Orders
+INSERT INTO dbo.Orders (CustomerID, OrderDate, Status) VALUES
+(1, '2024-01-15T10:30:00', 2), -- Completed
+(1, '2024-02-10T14:20:00', 2), -- Completed
+(2, '2024-02-12T09:15:00', 1), -- Processing
+(3, '2024-02-15T16:45:00', 0), -- Pending
+(4, '2024-02-18T11:00:00', 3), -- Cancelled
+(1, '2024-02-20T08:30:00', 2); -- Completed
+GO
+
+-- 8. Sample OrderDetails
+INSERT INTO dbo.OrderDetails (OrderID, ProductID, Quantity, UnitPrice) VALUES
+(1, 1, 1, 35000000.00),
+(1, 4, 1, 2500000.00),
+(2, 2, 1, 32000000.00),
+(3, 3, 2, 2200000.00),
+(4, 6, 1, 8490000.00),
+(5, 1, 1, 35000000.00),
+(6, 3, 1, 2200000.00),
+(6, 4, 2, 2500000.00);
 GO
