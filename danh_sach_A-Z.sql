@@ -1,4 +1,9 @@
---Lấy danh sách tất cả khách hàng, sắp xếp theo tên A–Z
-SELECT * 
-FROM Customers 
-ORDER BY CustomerName ASC;
+-- List_All_Customers_AZ
+SELECT 
+    CustomerID,
+    FullName,
+    Email,
+    Phone,
+    Address
+FROM dbo.Customers
+ORDER BY FullName ASC;
