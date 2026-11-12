@@ -1,7 +1,10 @@
---tìm khách hàng có từ 2 đơn hàng trở lên.
-SELECT c.CustomerID, c.CustomerName, COUNT(o.OrderID) AS OrderCount
-FROM Customers c
-JOIN Orders o ON c.CustomerID = o.CustomerID
-GROUP BY c.CustomerID, c.CustomerName
+--List_Loyal_Customers
+SELECT 
+    c.CustomerID,
+    c.FullName,
+    COUNT(o.OrderID) AS CompletedOrdersCount
+FROM dbo.Customers c
+INNER JOIN dbo.Orders o ON c.CustomerID = o.CustomerID
+WHERE o.Status = 2
+GROUP BY c.CustomerID, c.FullName
 HAVING COUNT(o.OrderID) >= 2;
---Mối quan hệ: Customers và Orders liên kết theo chiều 1 - Nhiều (1:N) qua CustomerID.
