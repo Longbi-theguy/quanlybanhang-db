@@ -1,13 +1,10 @@
---Thống kê doanh thu theo tháng, chỉ tính đơn Completed.
-
+-- Monthly_Revenue_Report
 SELECT 
-    YEAR(o.OrderDate) AS OrderYear,
-    MONTH(o.OrderDate) AS OrderMonth,
+    YEAR(o.OrderDate) AS [Year],
+    MONTH(o.OrderDate) AS [Month],
     SUM(od.Quantity * od.UnitPrice) AS MonthlyRevenue
-FROM Orders o
-JOIN OrderDetails od ON o.OrderID = od.OrderID
-WHERE o.Status = 'Completed'
+FROM dbo.Orders o
+INNER JOIN dbo.OrderDetails od ON o.OrderID = od.OrderID
+WHERE o.Status = 2
 GROUP BY YEAR(o.OrderDate), MONTH(o.OrderDate)
-ORDER BY OrderYear, OrderMonth;
-
---liên kết Orders và OrderDetails qua quan hệ 1 - Nhiều (1:N) (OrderID) để tính tổng doanh thu theo tháng.
+ORDER BY [Year] DESC, [Month] DESC;
