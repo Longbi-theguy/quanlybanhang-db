@@ -1,4 +1,7 @@
---Tính tổng tiền từng đơn hàng bằng SUM(Quantity * UnitPrice).
-SELECT OrderID, SUM(Quantity * UnitPrice) AS TotalAmount
-FROM OrderDetails
-GROUP BY OrderID;
+--Calculate_Total_Amount_Per_Order
+SELECT 
+    od.OrderID,
+    SUM(od.Quantity * od.UnitPrice) AS TotalAmount
+FROM dbo.OrderDetails AS od
+GROUP BY 
+    od.OrderID;
