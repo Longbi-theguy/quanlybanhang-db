@@ -17,7 +17,7 @@ GO
 
 -- 3. Tạo bảng Customers
 CREATE TABLE dbo.Customers (
-    CustomerID INT IDENTITY(1,1) CONSTRAINT PK_Customers PRIMARY KEY,
+    ID INT IDENTITY(1,1) CONSTRAINT PK_Customers PRIMARY KEY,
     FullName NVARCHAR(100) NOT NULL,
     Email VARCHAR(100) NOT NULL CONSTRAINT UQ_Customers_Email UNIQUE,
     Phone VARCHAR(15) NULL,
@@ -27,7 +27,7 @@ GO
 
 -- 4. Tạo bảng Products
 CREATE TABLE dbo.Products (
-    ProductID INT IDENTITY(1,1) CONSTRAINT PK_Products PRIMARY KEY,
+    ID INT IDENTITY(1,1) CONSTRAINT PK_Products PRIMARY KEY,
     ProductName NVARCHAR(150) NOT NULL,
     Price DECIMAL(18,2) NOT NULL CONSTRAINT CHK_Products_Price CHECK (Price >= 0),
     StockQuantity INT NOT NULL CONSTRAINT CHK_Products_Stock CHECK (StockQuantity >= 0)
@@ -36,7 +36,7 @@ GO
 
 -- 5. Tạo bảng Orders
 CREATE TABLE dbo.Orders (
-    OrderID INT IDENTITY(1,1) CONSTRAINT PK_Orders PRIMARY KEY,
+    ID INT IDENTITY(1,1) CONSTRAINT PK_Orders PRIMARY KEY,
     CustomerID INT NOT NULL,
     OrderDate DATETIME NOT NULL CONSTRAINT DF_Orders_OrderDate DEFAULT GETDATE(),
     Status TINYINT NOT NULL CONSTRAINT DF_Orders_Status DEFAULT 0,
@@ -47,7 +47,7 @@ GO
 
 -- 6. Tạo bảng OrderDetails
 CREATE TABLE dbo.OrderDetails (
-    OrderDetailID INT IDENTITY(1,1) CONSTRAINT PK_OrderDetails PRIMARY KEY,
+    ID INT IDENTITY(1,1) CONSTRAINT PK_OrderDetails PRIMARY KEY,
     OrderID INT NOT NULL,
     ProductID INT NOT NULL,
     Quantity INT NOT NULL CONSTRAINT CHK_OrderDetails_Quantity CHECK (Quantity > 0),
